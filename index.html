@@ -192,7 +192,7 @@
                 <div class="exp-bar-container">
                     <div id="exp-bar" class="exp-bar-fill"></div>
                 </div>
-                <p id="next-level-hint" class="text-sm text-blue-700 mt-2 font-bold animate-pulse">포켓몬처럼 진화시켜보세요!</p>
+                <p id="next-level-hint" class="text-sm text-blue-700 mt-2 font-bold animate-pulse">드래그해서 키워주세요!</p>
 
                 <div id="feedback-msg" class="absolute -top-16 text-3xl font-bold text-blue-600 opacity-0 bg-white px-8 py-3 rounded-full shadow-2xl border-4 border-blue-100">
                     냠냠!
@@ -209,11 +209,23 @@
     <!-- Starting Overlay -->
     <div id="game-overlay" class="overlay fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="bg-white p-12 rounded-[4rem] text-center shadow-2xl max-w-md border-8 border-blue-500">
-            <h1 id="overlay-title" class="text-5xl mb-6 text-blue-700 leading-tight font-black italic">키워주세<b>용</b>!</h1>
-            <div id="overlay-desc" class="text-2xl text-gray-700 mb-10 space-y-3 leading-relaxed text-left pl-4">
-                <p>🍖 먹이를 <span class="text-blue-600 font-bold">드래그</span>해서 먹이세요!</p>
-                <p>❄️ 얼음은 <span class="text-blue-500 font-bold underline">더블클릭</span>으로 깨기!</p>
-                <p>💀 <span class="text-red-500 font-bold">해골</span>은 피해야 해요!</p>
+            <h1 id="overlay-title" class="text-5xl mb-8 text-blue-700 leading-tight font-black tracking-tighter">
+                키워주세요!
+            </h1>
+            <div id="overlay-desc" class="text-2xl text-gray-700 mb-10 space-y-5 leading-relaxed text-center">
+                <p>🐉 마지막 단계인 <b class="text-red-500 underline">전설의 용</b>까지<br>한번 쑥쑥 키워볼까요?</p>
+                <div class="text-xl bg-gray-50 p-6 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                        <span>🍎</span> <p class="text-left font-medium"><b class="text-blue-600">먹이</b>를 입으로 드래그해요!</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span>❄️</span> <p class="text-left font-medium"><b class="text-cyan-500">얼음</b>은 따닥(더블클릭)! 깨주세요!</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span>💀</span> <p class="text-left font-medium"><b class="text-red-500">해골</b>은 피해야 해요! (감점)</p>
+                    </div>
+                </div>
+                <p class="text-xl text-purple-600 font-bold">최종 마스터는 과연 누구일까요?</p>
             </div>
             <button id="start-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-4xl px-20 py-6 rounded-full transition-all active:scale-95 shadow-2xl hover:shadow-blue-300 font-bold">
                 성장 시작!
@@ -290,19 +302,18 @@
             food.className = 'food-item text-6xl p-5 bg-gray-50 rounded-2xl shadow-md border-2 border-gray-100 flex items-center justify-center';
             food.draggable = true;
             
-            // Probabilities
-            if (typeValue < 0.20) { // Frozen: 20%
+            if (typeValue < 0.20) { 
                 food.classList.add('frozen');
                 food.dataset.type = 'frozen';
                 food.draggable = false;
-            } else if (typeValue < 0.30) { // Golden: 10%
+            } else if (typeValue < 0.30) { 
                 food.classList.add('golden');
                 food.dataset.type = 'golden';
-            } else if (typeValue < 0.32) { // Poison: 2%
+            } else if (typeValue < 0.32) { 
                 food.classList.add('poison');
                 food.dataset.type = 'poison';
                 food.innerText = '💀';
-            } else { // Normal: 68%
+            } else { 
                 food.dataset.type = 'normal';
             }
 
@@ -337,13 +348,11 @@
             }
             e.target.classList.add('dragging');
             e.dataTransfer.setData('text/plain', e.target.dataset.type);
-            // 드래그 중인 요소를 ID로 식별하도록 설정
             e.target.id = 'current-food-dragging';
         }
 
         function handleDragEnd(e) {
             e.target.classList.remove('dragging');
-            // 드래그가 끝나면 ID 제거
             if (e.target.id === 'current-food-dragging') e.target.id = '';
         }
 
@@ -362,13 +371,10 @@
             monster.style.transform = 'scale(1)';
             if (!gameActive) return;
             
-            // --- BUG FIX: 클릭/텍스트 드래그 버그 방지 로직 ---
             const draggedElement = document.getElementById('current-food-dragging');
-            // 만약 게임에서 생성한 먹이 아이템이 아니라면(즉, 텍스트나 다른 것의 드롭이라면) 무시합니다.
             if (!draggedElement) return;
 
             const type = e.dataTransfer.getData('text/plain');
-            // 데이터가 비어있어도 무시합니다.
             if (!type) return;
 
             let pointChange = 0;
@@ -394,12 +400,10 @@
                 triggerMonsterAnim('eat');
             }
 
-            // 점수 및 효과 적용
             score = Math.max(0, score + pointChange);
             scoreDisplay.innerText = score;
             showEffect(e.clientX, e.clientY, feedbackText, color);
             
-            // 드래그된 요소 교체
             const parent = draggedElement.parentElement;
             parent.replaceChild(createFoodItem(), draggedElement);
 
@@ -415,23 +419,21 @@
                 }
             }
 
-            // 진화 조건 체크
             if (nextLevelIdx > currentLevelIndex) {
                 currentLevelIndex = nextLevelIdx;
                 triggerEvolution();
             }
 
-            // XP Bar 업데이트
             const currentStage = evolutionStages[currentLevelIndex];
             const nextStage = evolutionStages[currentLevelIndex + 1];
             if (nextStage) {
                 const range = nextStage.minScore - currentStage.minScore;
                 const progress = ((score - currentStage.minScore) / range) * 100;
                 expBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
-                document.getElementById('next-level-hint').innerText = `${nextStage.name}까지 ${(nextStage.minScore - score)}점 남음!`;
+                document.getElementById('next-level-hint').innerText = `${nextStage.name}까지 ${(nextStage.minScore - score)}점 남았어요!`;
             } else {
                 expBar.style.width = '100%';
-                document.getElementById('next-level-hint').innerText = "최강의 용 탄생! 🐲";
+                document.getElementById('next-level-hint').innerText = "최종 진화 완료! 당신은 용 마스터에요! 🐲";
             }
         }
 
@@ -464,7 +466,7 @@
         function triggerMonsterAnim(type) {
             if (monster.classList.contains('evolution-flash')) return;
             monster.classList.remove('monster-eat', 'monster-hurt');
-            void monster.offsetWidth; // Reflow to restart animation
+            void monster.offsetWidth;
             if (type === 'eat') monster.classList.add('monster-eat');
             else monster.classList.add('monster-hurt');
         }
@@ -508,12 +510,13 @@
                 bestScoreDisplay.innerText = bestScore;
             }
 
-            document.getElementById('overlay-title').innerText = '성장 결과 🏅';
+            document.getElementById('overlay-title').innerHTML = `성장 결과에요!`;
             document.getElementById('overlay-desc').innerHTML = `
                 최종 점수: <span class="text-5xl text-blue-600 block my-4">${score}점</span>
-                최고 레벨: <span class="text-3xl text-purple-600 font-bold">${evolutionStages[currentLevelIndex].name}</span>
+                최고 단계: <span class="text-3xl text-purple-600 font-bold">${evolutionStages[currentLevelIndex].name}</span>
+                <p class="mt-4 text-lg">전설의 용까지 도달했나요?</p>
             `;
-            document.getElementById('start-btn').innerText = '다시 도전!';
+            document.getElementById('start-btn').innerText = '다시 키우기!';
             overlay.classList.remove('hidden');
         }
 
